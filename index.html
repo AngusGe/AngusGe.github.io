@@ -1,1 +1,669 @@
-HELLO,WORLD
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DEMO</title>
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <style>
+        body{
+            background-color: aliceblue;
+
+        }
+        #list_con{
+            width: 80%;
+            height: 200px;
+            position: absolute;
+            top: 50%;
+            left: 10%;
+        }
+        #list_con input {
+            display: block;
+            margin: auto;
+            margin-top: 10px;
+            border-radius: 4px;
+            background: #26bdab;
+        }
+        .closePage{
+            text-align: right;
+            left: 0;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            z-index: 999;
+            width: 100%;
+            height: 14px;
+            background-color: bisque;
+            margin: 0;
+        }
+        button:active,button:focus,button{
+            border-style:none;
+            outline:none;
+
+        }
+        button:active{
+            /*border:1px solid red;        */
+        }
+        #status{
+            display: block;
+            width: 80%;
+            margin: auto;
+            height: 150px;
+            margin-top: 20px;
+        }
+        .form{
+            width:100%;
+
+        }
+        .form lable{
+            display: inline-block;
+            width:30%;
+        }
+        .form input{
+            border: none;
+            display: inline-block;
+            width: 50%;
+            border-bottom: 1px solid #26bdab;
+            background: transparent;
+            margin-left: 10%;
+        }
+        .buttonForm{
+            /*height:160px;*/
+            line-height: 80px;
+            margin-bottom: 10px;
+        }
+        .buttonForm button{
+             border-radius:30px;width:50px; height:60px; /*margin-left: 5%;*/margin-top: 5%;background-color: #26bdab;
+            color: white;
+        }
+    </style>
+<script src="https://hop.hulubank.com.cn:1443/sdk/html/B/HRSDK/hr_js_sdk/hr.js" title="true" debug="true" charset="utf-8"></script>
+
+<script>
+function ID(ele){
+    return document.getElementById(ele);
+}
+</script>
+
+<script>
+    function initSdk () {
+        SHRB.initWithAppID(document.getElementById('appID').value,function () {
+            show("JSSDK初始化完成");
+        });
+    };
+    function getSign(){
+
+        var signData={
+            "appID": document.getElementById('appID').value,
+                    "body": "天天水果",
+                    "mchID": document.getElementById("mchID").value,
+                    "outTradeNo": document.getElementById('outTradeNo').value,
+                    "random": document.getElementById('random').value,
+                    "totalFee": document.getElementById("totalFee").value
+        };
+
+        var appkey=document.getElementById("app_secret").value;
+        var urlappkey=encodeURIComponent(encodeURIComponent(appkey));
+        var urljson=encodeURIComponent(encodeURIComponent(JSON.stringify(signData)));
+        HrAjax({
+            url: 'https://hop.hulubank.com.cn:1443/devportal/ws/createSign/getSign',
+            type:"get",
+            data: {json:urljson,
+                appkey:urlappkey},
+            dataType: 'json',
+            async: true,
+            success:function(dataStr){
+                var data = eval('(' + dataStr + ')');
+                if(data.code == "00000"){
+                    document.getElementById('outTradeSign').value=data.result.sign;
+                } else {
+                    alert(data.message);
+                }
+            },
+            error:function(){
+                alert('ajax调用异常');
+            }
+        });
+
+    }
+    function appGetSign(){
+        var signData={
+            "appID": document.getElementById('appID').value,
+            "randomNumber": document.getElementById('randomNumber').value
+        };
+
+        var appkey=document.getElementById("app_secret").value;
+        var urlappkey=encodeURIComponent(encodeURIComponent(appkey));
+        var urljson=encodeURIComponent(encodeURIComponent(JSON.stringify(signData)));
+        HrAjax({
+            url: 'https://hop.hulubank.com.cn:1443/devportal/ws/createSign/getSign',
+            type:"get",
+            data: {json:urljson,
+                appkey:urlappkey},
+            dataType: 'json',
+            async: true,
+            success:function(dataStr){
+                var data = eval('(' + dataStr + ')');
+                if(data.code == "00000"){
+                    document.getElementById('MD5sign').value=data.result.sign;
+                } else {
+                    alert(data.message);
+                }
+            },
+            error:function(){
+                alert('ajax调用异常');
+            }
+        });
+
+    }
+
+    function show(data){
+        document.getElementById("status").innerHTML=data;
+    }
+    function login(){
+        SHRB.Api({
+            serviceId:"getUserIDs",
+            data:{
+                appUserToken : document.getElementById("appUserToken").value
+            }
+        },function (data) {
+            show(data);
+        })
+    }
+    var approveDev=function () {
+       SHRB.Api({
+            serviceId: "approveDev",
+            data: {
+                MD5sign: document.getElementById("MD5sign").value,
+                randomNumber: document.getElementById("randomNumber").value
+            }
+        },function (data) {
+            show(data);
+            saveAppList();
+        })
+
+       function saveAppList(){
+            var appID=document.getElementById("appID").value;
+            var app_secret=document.getElementById("app_secret").value;
+            var MD5sign=document.getElementById("MD5sign").value;
+            var randomNumber=document.getElementById("randomNumber").value;
+            var parseData=JSON.parse(localStorage.getItem("hr_app_demo_list"));
+            if(parseData && parseData.appID){
+                var local_appList=parseData,same_status=true;
+                for(var i=0,l=local_appList.appID.length;i<l;i++){
+                    if(appID==local_appList.appID[i]) same_status=false;
+                }
+                if(same_status){
+                    local_appList.appID.push(appID);
+                    local_appList.app_secret.push(app_secret);
+                    local_appList.MD5sign.push(MD5sign);
+                    local_appList.randomNumber.push(randomNumber);
+                }
+                localStorage.setItem("hr_app_demo_list",JSON.stringify(local_appList));
+            }else{
+                var data={
+                    appID:[appID],
+                    app_secret:[app_secret],
+                    MD5sign:[MD5sign],
+                    randomNumber:[randomNumber]
+                }
+                localStorage.setItem("hr_app_demo_list",JSON.stringify(data));
+            }
+            
+       }
+    };
+    var getUserCardList=function () {
+        SHRB.Api({
+            serviceId:"getUserCardList",
+            data:{}
+        },function (data) {
+            console.log(data);
+            orderQuery();
+        })
+    };
+    var payID;
+    function orderQuery() {
+            SHRB.Api({
+                serviceId:"orderQuery",
+                data:{
+                    mchID:document.getElementById("mchID").value,
+                    outTradeNo:document.getElementById("outTradeNo").value,
+                    payID:payID
+                }
+            },function (data) {
+                console.log("接收数据");
+                console.log(data);
+            })
+    }
+    function cardQuery(){
+        
+        SHRB.Api({
+                serviceId:"customerCardArrayQuery",
+                data:{
+                    cardID:ID("cardID").value,
+                    cardStatus:"N",
+                    customerID:ID("customerID").value,
+                    merchantID:ID("merchantID").value,
+                    platformID:ID("platformID").value,
+                    virtualAcctType:"101",
+                    personUnionID:ID("personUnionID").value
+                }
+            },function (data) {
+                console.log("接收数据");
+                console.log(data);
+                show(data);
+            })
+    }
+    var payOrder=function () {
+        SHRB.Api({
+            serviceId:"HROrderPay",
+            data:{
+                discountList:[
+                    {
+                        cardID:document.getElementById("cardID").value,
+                        discountAmt:document.getElementById("discountAmt").value,
+                        discountName:document.getElementById("discountName").value
+                    }
+                ],
+                tranDetail:{
+                    "attach":"最好的",
+                    "timeValid" : "120",
+                    "outTradeNo" : document.getElementById("outTradeNo").value,
+                    "backUrl" : "http://abc.com",
+                    "body" : "天天水果",
+                    "totalFee" : document.getElementById("totalFee").value,
+                    "detail" : "水蜜桃",
+                    "goodsTag" : "WXG",
+                    "mchName":"最好吃的水蜜桃",
+                    "mchID":document.getElementById("mchID").value,
+                    "spbillCreateIp" : "10.125.22.33",
+                    "feeType" : "CNY",
+                    "limitPay" : "01",
+                    "confirmOrder" :"N",
+                    "unpaidAmount":"44",
+                    "paidAmount":"44",
+                    "discountFee":ID("discountFee").value,
+                    "customerID":ID("customerID").value,
+                    "merchantID":ID("merchantID").value,
+                    "platformID":ID("platformID").value
+                },
+                random:document.getElementById("random").value,
+                sign:document.getElementById("outTradeSign").value,
+                autoFillData:{
+                    "realName":"",
+                    "cardNo":"",
+                    "identity":"",
+                    "mobile":"18310839846",
+                    "revmobile":""
+                }
+            }
+        },function (data) {
+            console.log(data);
+            show(data);
+            payID=JSON.parse(data).payID;
+        })
+    };
+    var HRBindCard=function () {
+        SHRB.Api({
+            serviceId:"HRBindCard",
+            data:{
+                autoFillData : {
+                    "realName":"",
+                    "cardNo":"",
+                    "identity":"",
+                    "mobile":"18310839846",
+                    "revmobile":""
+                }
+            }
+        },function (data) {
+            console.log("接收数据");
+            console.log(data);
+            show(data);
+        })
+    }
+    var HRBindCard1=function () {
+        SHRB.Api({
+            serviceId:"HROpenEMemCard",
+            data:{
+                platformID:ID("platformID").value,
+                autoFillData : {
+                    "realName":"",
+                    "cardNo":"",
+                    "identity":"",
+                    "mobile":"18310839846",
+                    "revmobile":""
+                }
+            }
+        },function (data) {
+            console.log("接收数据");
+            console.log(data);
+            show(data);
+        })
+    }
+    function removePage(){
+        SHRB.delPayPage(function(data){
+            show(data);
+        })
+    }
+            function ninePurchase(){
+            SHRB.Api({
+                serviceId:"HRPurchase",
+                data:{
+                    "tradeData": {
+                        "productType": document.getElementById('purchase_Type').value,
+                        "productId": document.getElementById('purchase_ID').value
+                    },
+                    "extraMessage": {
+                        "tranNo": "11",
+                        "mobile": "13088881111",
+                        "realName": "谷震",
+                        "appAmt": document.getElementById('purchase_amt').value,
+                        "identity": "652324198006208272",
+                        "revmobile": "13088881111",
+                        "cardNo": "6214831218445788"
+                    }
+                }
+            },function (data) {
+                console.log("接收数据");
+                console.log(data);
+                show(data);
+            })
+        }
+        function setPurchase(){
+            if(document.getElementById('purcahse_con').style.display=="block"){
+                document.getElementById('purcahse_con').style.display="none";
+            }else{
+                document.getElementById('purcahse_con').style.display="block";
+            }
+        }
+        function setEcard(){
+            if(document.getElementById('ecard_con').style.display=="block"){
+                document.getElementById('ecard_con').style.display="none";
+            }else{
+                document.getElementById('ecard_con').style.display="block";
+            }
+        }
+        var deposits=function () {
+            SHRB.Api({
+                serviceId:"HRDeposits",
+                data:{
+                    tranDetail:{
+                    },
+                    autoFillData:{
+                        "realName":"",
+                        "cardNo":"",
+                        "identity":"",
+                        "mobile":"",
+                        "revmobile":""
+                    }
+                }
+            },function (data) {
+                console.log(data);
+                show(data);
+                payID=JSON.parse(data).payID;
+            })
+        };
+
+        function selectApp(){
+            var appList=JSON.parse(localStorage.getItem("hr_app_demo_list"));
+            var list_con=document.createElement("div");
+            list_con.setAttribute("id","list_con");
+            list_con.style.background="white";
+            list_con.style.border="1px solid black";
+            list_con.style.overflowY="auto";
+            if(appList && appList.appID){
+                var l = appList.appID.length,htmlText="";
+                for(var i=0;i<l;i++){
+                    var htmlNode='<div id='+appList.appID[i]+' style="padding: 5px;"><input MD5sign='+appList.MD5sign[i]+'  randomNumber='+appList.randomNumber[i]+'  app_secret='+appList.app_secret[i]+' value='+appList.appID[i]+' type="button" style="margin-top:0px;display:inline-block;width:75%;" onclick="chooseApp(this)"><span style="display: inline-block;width: 20%;text-align: center;background: #b4874a;border-radius:2px;color:white;margin-left:6px;" onclick=deleteApp(\''+appList.appID[i]+'\')>删除</span></div>';
+                    htmlText=htmlText+htmlNode;
+                }
+                list_con.innerHTML=htmlText;
+                list_con.style.display="block";
+                document.body.appendChild(list_con);
+            }
+        }
+        function chooseApp(_this){
+            document.getElementById("appID").value=_this.value;
+            document.getElementById("app_secret").value=_this.getAttribute('app_secret');
+            document.getElementById("MD5sign").value=_this.getAttribute('MD5sign');
+            document.getElementById("randomNumber").value=_this.getAttribute('randomNumber');
+            document.body.removeChild(document.getElementById("list_con"));
+        }
+        function deleteApp(appID){
+            var appList=JSON.parse(localStorage.getItem("hr_app_demo_list"));
+            var l = appList.appID.length;
+            for(var i=0;i<l;i++){
+                if(appID==appList.appID[i]){
+                    appList.appID.splice(i,1);
+                    appList.app_secret.splice(i,1);
+                    appList.MD5sign.splice(i,1);
+                    appList.randomNumber.splice(i,1);
+                }
+            }
+            localStorage.setItem("hr_app_demo_list",JSON.stringify(appList))
+            document.getElementById("list_con").removeChild(document.getElementById(appID));
+        }
+        function loan(){
+            SHRB.Api({
+                serviceId:"HRLoanManagement",
+                data:{
+                    autoFillData:{
+                    "realName":"",
+                    "cardNo":"",
+                    "identity":"",
+                    "mobile":"18310839846",
+                    "revmobile":""
+                }
+                }
+            },function (data) {
+                console.log("接收数据");
+                console.log(data);
+                show(data);
+            })
+        }
+
+</script>
+
+</head>
+<body>
+<!-- <button class="closePage" onclick="removePage();">点击关闭支付页面</button> -->
+<textarea id="status"></textarea>
+<div class="buttonForm">
+    <button style="margin-left: 2%;"  onclick="initSdk();">appID初始化</button>
+    <button  onclick="approveDev();">验证开发者</button>
+    <button  onclick="login();">获取一键登录</button>
+    <button  onclick="payOrder();">调起支付页面</button>
+    <button  onclick="deposits();">调起充值页面</button>
+    <button  onclick="ninePurchase();">调起申购</button>
+    <button  onclick="setPurchase();">申购参数</button>
+    <button  onclick="HRBindCard();">调起绑卡</button>
+    <button  onclick="HRBindCard1();">电子会员</button>
+    <button  onclick="setEcard();">会员参数</button>
+    <button  onclick="loan();">融资管理</button>
+    <button onclick="cardQuery()">卡包查询</button>
+</div>
+<div id="purcahse_con" style="display: none">
+    <div class="form" >
+        <lable>productID</lable>
+        <input type="text" id="purchase_ID" placeholder="productID" value="">
+    </div>
+    <div class="form" >
+        <lable>productType</lable>
+        <input type="text" id="purchase_Type" placeholder="productID" value="">
+    </div>
+    <div class="form" >
+        <lable>申购金额</lable>
+        <input type="text" id="purchase_amt" placeholder="金额" value="1000">
+    </div>
+</div>
+<div id="ecard_con" style="display: none">
+    <div class="form" >
+        <lable>电子卡卡号</lable>
+        <input type="text" id="cardID" placeholder="电子卡卡号" value="CARD0001">
+    </div>
+    <div class="form" >
+        <lable>优惠券编号</lable>
+        <input type="text" id="discountID" placeholder="优惠券编号" value="">
+    </div>
+    <div class="form" >
+        <lable>卡余额</lable>
+        <input type="text" id="discountAmt" placeholder="金额" value="20000">
+    </div>
+    <div class="form" >
+        <lable>优惠名称</lable>
+        <input type="text" id="discountName" placeholder="" value="8424大促销">
+    </div>
+    <div class="form" >
+        <lable>优惠类型</lable>
+        <input type="text" id="discountType" placeholder="" value="">
+    </div>
+
+    <div class="form" >
+        <lable>会员编号</lable>
+        <input type="text" id="customerID" placeholder="" value="1013330000000843">
+    </div>
+    <div class="form" >
+        <lable>电子会员卡商户编号</lable>
+        <input type="text" id="merchantID" placeholder="电子会员卡商户编号" value="2013490000001201">
+    </div>
+    <div class="form" >
+        <lable>优惠金额</lable>
+        <input type="text" id="discountFee" placeholder="优惠金额" value="88">
+    </div>
+    <div class="form" >
+        <lable>交易平台编号</lable>
+        <input type="text" id="platformID" placeholder="交易平台编号" value="301349">
+    </div>
+    <div class="form" >
+        <lable>用户personUnionID</lable>
+        <input type="text" id="personUnionID" placeholder="用户personUnionID" value="ndxtKWM5ljQsMv36ADQdXddPOQbIy08T+U6BgPmsQzY=">
+    </div>
+<hr>
+</div>
+
+<div class="form" >
+    <lable>appID</lable>
+    <input type="text" id="appID" placeholder="appID,不可为空" value="ba0dbce1-5f5a-49de-84d3-3528181158f9">
+</div>
+<div class="form" >
+    <lable>app secret</lable>
+    <input type="text" id="app_secret" placeholder="app secret,不可为空" value="acf04e59-4c0e-4410-b1c0-ac423f968c0a">
+</div>
+<div class="form">
+    <lable>MD5sign</lable>
+    <input type="text" style="width:20%;" id='MD5sign' placeholder="MD5sign,不可为空" value="DBFD1B3660F3981E286EBE64C1266702">
+    <button style="
+    display: inline-block;
+    float: right;
+    margin-right: 7%;
+    margin-top: 2px;
+    background: #26bdab;
+    color: white;
+    border-radius: 5px;" onclick="selectApp()">历史应用</button>
+</div>
+<div class="form">
+    <lable>randomNumber</lable>
+    <input style="width:20%;" type="text" id='randomNumber' placeholder="randomNumber,不可为空" value="123456">
+    <button style="
+    display: inline-block;
+    float: right;
+    margin-right: 7%;
+    margin-top: 2px;
+    background: #26bdab;
+    color: white;
+    border-radius: 5px;" onclick="appGetSign()">应用加签</button>
+</div>
+<div class="form" style="margin-bottom: 20px">
+    <lable>appUserToken</lable>
+    <input type="text" id='appUserToken' placeholder="appUserToken,不可为空" value="0000000123">
+
+</div>
+<div class="form">
+    <lable>订单号</lable>
+    <input type="text" id='outTradeNo' placeholder="订单号,不可为空" value="0989990003">
+
+</div>
+<div class="form_con">
+    <div class="form" style="display: inline-block;width: 45%">
+    <lable>金额</lable>
+    <input type="text" id='totalFee' placeholder="订单金额,不可为空" value="88">
+    </div>
+    <div class="form" style="display: inline-block;width: 40%">
+        <lable style="width: 40%">商户号</lable>
+        <input style="width: 40%" type="text" id='mchID' placeholder="商户号" value="SHRB01100000002416">
+    </div>
+</div>
+<div class="form">
+    <lable>订单random</lable>
+    <input style="width:20%;" type="text" id='random' placeholder="random,不可为空" value="123456">
+    <button style="
+    display: inline-block;
+    float: right;
+    margin-right: 7%;
+    margin-top: 2px;
+    background: #26bdab;
+    color: white;
+    border-radius: 5px;" onclick="getSign()">订单加签</button>
+</div>
+<div class="form">
+    <lable>订单sign</lable>
+    <input type="text" id='outTradeSign' placeholder="订单支付MD5sign,不可为空" value="AFF38BC65C02F08DDE9CA12EEB2FB2CC">
+</div>
+
+
+</body>
+<script>
+//用于AJAX请求
+
+    var HrAjax = function (opts) {
+    var _HrAjaxOpts = {
+        method:"GET",
+        url:"",
+        data:"",
+        async:true,
+        cache:true,
+        contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+        success:function (){},
+        error:function (){}
+    };
+    for(var key in opts){
+        _HrAjaxOpts[key] = opts[key];
+    }
+    _HrAjaxOpts.method=_HrAjaxOpts.method.toUpperCase();
+    if(typeof _HrAjaxOpts.data=="object"){
+        if(_HrAjaxOpts.method === 'GET'){
+            var str="";
+            for (var key in _HrAjaxOpts.data){
+            if(typeof(_HrAjaxOpts.data[key])=="object") _HrAjaxOpts.data[key]=JSON.stringify(_HrAjaxOpts.data[key]);
+                str += key + '=' + _HrAjaxOpts.data[key] +'&';
+
+            }
+            _HrAjaxOpts.data=str.substring(0,str.length-1);
+        }else{
+            _HrAjaxOpts.data=JSON.stringify(_HrAjaxOpts.data);
+        }
+    }
+    _HrAjaxOpts.cache=_HrAjaxOpts.cache ? "" : '&' +new Date().getTime();
+    if(_HrAjaxOpts.method === 'GET' && (_HrAjaxOpts.data || _HrAjaxOpts.cache)) {
+        _HrAjaxOpts.url += '?' + _HrAjaxOpts.data + _HrAjaxOpts.cache;
+    }
+    var hrXhr=window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    hrXhr.open(_HrAjaxOpts.method,_HrAjaxOpts.url,_HrAjaxOpts.async);
+    if(_HrAjaxOpts.method==="GET"){
+        hrXhr.send(null);
+    }else{
+        hrXhr.setRequestHeader("Content-type",_HrAjaxOpts.contentType);
+        hrXhr.send(_HrAjaxOpts.data);
+    }
+    hrXhr.onreadystatechange = function () {
+        if(hrXhr.readyState==4 ) {
+            if (hrXhr.status == 200) {
+                _HrAjaxOpts.success.call(hrXhr, hrXhr.responseText);
+            } else {
+                _HrAjaxOpts.error.call(hrXhr, hrXhr.status);
+            }
+        }
+     }
+    };
+</script>
+
+</html>
