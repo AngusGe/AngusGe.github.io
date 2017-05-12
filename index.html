@@ -76,7 +76,7 @@
             color: white;
         }
     </style>
-<script src="https://hop.hulubank.com.cn:1443/sdk/html/B/HRSDK/hr_js_sdk/hr.js" title="true" debug="true" charset="utf-8"></script>
+<script src="https://hop.shrb.it/sdk/html/HRSDK/hr_js_sdk/hr.js" title="true" debug="true" charset="utf-8"></script>
 
 <script>
 function ID(ele){
@@ -245,7 +245,7 @@ function ID(ele){
                     merchantID:ID("merchantID").value,
                     platformID:ID("platformID").value,
                     virtualAcctType:"101",
-                    personUnionID:ID("personUnionID").value
+                    personUnionID:"ndxtKWM5ljQsMv36ADQdXddPOQbIy08T+U6BgPmsQzY="
                 }
             },function (data) {
                 console.log("接收数据");
@@ -479,7 +479,6 @@ function ID(ele){
     <button  onclick="HRBindCard1();">电子会员</button>
     <button  onclick="setEcard();">会员参数</button>
     <button  onclick="loan();">融资管理</button>
-    <button onclick="cardQuery()">卡包查询</button>
 </div>
 <div id="purcahse_con" style="display: none">
     <div class="form" >
@@ -523,7 +522,7 @@ function ID(ele){
     </div>
     <div class="form" >
         <lable>电子会员卡商户编号</lable>
-        <input type="text" id="merchantID" placeholder="电子会员卡商户编号" value="2013490000001201">
+        <input type="text" id="merchantID" placeholder="电子会员卡商户编号" value="2013330000001111">
     </div>
     <div class="form" >
         <lable>优惠金额</lable>
@@ -531,26 +530,25 @@ function ID(ele){
     </div>
     <div class="form" >
         <lable>交易平台编号</lable>
-        <input type="text" id="platformID" placeholder="交易平台编号" value="301349">
+        <input type="text" id="platformID" placeholder="交易平台编号" value="301333">
     </div>
-    <div class="form" >
+     <div class="form" >
         <lable>用户personUnionID</lable>
         <input type="text" id="personUnionID" placeholder="用户personUnionID" value="ndxtKWM5ljQsMv36ADQdXddPOQbIy08T+U6BgPmsQzY=">
     </div>
-<hr>
 </div>
 
 <div class="form" >
     <lable>appID</lable>
-    <input type="text" id="appID" placeholder="appID,不可为空" value="ba0dbce1-5f5a-49de-84d3-3528181158f9">
+    <input type="text" id="appID" placeholder="appID,不可为空" value="13a868b6-eb75-4cad-8fe8-f3ba92a1e008">
 </div>
 <div class="form" >
     <lable>app secret</lable>
-    <input type="text" id="app_secret" placeholder="app secret,不可为空" value="acf04e59-4c0e-4410-b1c0-ac423f968c0a">
+    <input type="text" id="app_secret" placeholder="app secret,不可为空" value="9e74900b-1615-49df-a618-5481596f63db">
 </div>
 <div class="form">
     <lable>MD5sign</lable>
-    <input type="text" style="width:20%;" id='MD5sign' placeholder="MD5sign,不可为空" value="DBFD1B3660F3981E286EBE64C1266702">
+    <input type="text" style="width:20%;" id='MD5sign' placeholder="MD5sign,不可为空" value="2071242EE2239BAF2F551A52169377DD">
     <button style="
     display: inline-block;
     float: right;
