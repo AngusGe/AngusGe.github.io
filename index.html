@@ -76,6 +76,7 @@
             color: white;
         }
     </style>
+    <script src="md5.js"></script>
 <script src="https://hop.shrb.it/sdk/html/HRSDK/hr_js_sdk/hr.js" title="true" debug="true" charset="utf-8"></script>
 
 <script>
@@ -92,67 +93,17 @@ function ID(ele){
     };
     function getSign(){
 
-        var signData={
-            "appID": document.getElementById('appID').value,
-                    "body": "天天水果",
-                    "mchID": document.getElementById("mchID").value,
-                    "outTradeNo": document.getElementById('outTradeNo').value,
-                    "random": document.getElementById('random').value,
-                    "totalFee": document.getElementById("totalFee").value
-        };
 
-        var appkey=document.getElementById("app_secret").value;
-        var urlappkey=encodeURIComponent(encodeURIComponent(appkey));
-        var urljson=encodeURIComponent(encodeURIComponent(JSON.stringify(signData)));
-        HrAjax({
-            url: 'https://hop.hulubank.com.cn:1443/devportal/ws/createSign/getSign',
-            type:"get",
-            data: {json:urljson,
-                appkey:urlappkey},
-            dataType: 'json',
-            async: true,
-            success:function(dataStr){
-                var data = eval('(' + dataStr + ')');
-                if(data.code == "00000"){
-                    document.getElementById('outTradeSign').value=data.result.sign;
-                } else {
-                    alert(data.message);
-                }
-            },
-            error:function(){
-                alert('ajax调用异常');
-            }
-        });
+        var appInfo="appID="+ID('appID').value+"&body=天天水果&mchID="+ID("mchID").value+"&outTradeNo="+ID('outTradeNo').value+"&totalFee="+ID("totalFee").value+"&random="+ID('random').value+"&key="+ID("app_secret").value;
+	    var hash = hex_md5(appInfo);
+	    document.getElementById('outTradeSign').value=hash.toUpperCase();
+
 
     }
     function appGetSign(){
-        var signData={
-            "appID": document.getElementById('appID').value,
-            "randomNumber": document.getElementById('randomNumber').value
-        };
-
-        var appkey=document.getElementById("app_secret").value;
-        var urlappkey=encodeURIComponent(encodeURIComponent(appkey));
-        var urljson=encodeURIComponent(encodeURIComponent(JSON.stringify(signData)));
-        HrAjax({
-            url: 'https://hop.hulubank.com.cn:1443/devportal/ws/createSign/getSign',
-            type:"get",
-            data: {json:urljson,
-                appkey:urlappkey},
-            dataType: 'json',
-            async: true,
-            success:function(dataStr){
-                var data = eval('(' + dataStr + ')');
-                if(data.code == "00000"){
-                    document.getElementById('MD5sign').value=data.result.sign;
-                } else {
-                    alert(data.message);
-                }
-            },
-            error:function(){
-                alert('ajax调用异常');
-            }
-        });
+    	var appInfo="appID="+document.getElementById('appID').value+"&randomNumber="+document.getElementById('randomNumber').value+"&key="+document.getElementById("app_secret").value;
+	    var hash = hex_md5(appInfo);
+	    document.getElementById('MD5sign').value=hash.toUpperCase();
 
     }
 
